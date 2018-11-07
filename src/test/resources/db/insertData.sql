@@ -1,0 +1,1 @@
+INSERT INTO EMPLOYEE(ID,EMAIL) VALUES (1,'danov@dreamix.eu');
