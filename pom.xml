@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -25,6 +24,12 @@
 		<java.version>1.8</java.version>
 		<maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
 		<maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
+		<kafka.testkit.version>0.7</kafka.testkit.version>
+		<spring.boot.jersey.version>2.0.4.RELEASE</spring.boot.jersey.version>
+		<jersey.guava.version>2.6</jersey.guava.version>
+		<swagger.version>2.9.2</swagger.version>
+		<avro.version>1.8.2</avro.version>
+		<confluent.version>4.1.1</confluent.version>
 		<cucumber.version>3.0.2</cucumber.version>
 	</properties>
 
@@ -77,8 +82,69 @@
 			<version>${cucumber.version}</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+		<!-- spring-kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>${spring-kafka.version}</version>
+		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<version>${spring-kafka.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- kafka-avro -->
+		<dependency>
+			<groupId>org.apache.avro</groupId>
+			<artifactId>avro</artifactId>
+			<version>${avro.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.confluent</groupId>
+			<artifactId>kafka-avro-serializer</artifactId>
+			<version>${confluent.version}</version>
+		</dependency>
+
+		<!--Kafka embedded -->
+		<dependency>
+			<groupId>com.datamountaineer</groupId>
+			<artifactId>kafka-testkit</artifactId>
+			<version>${kafka.testkit.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jersey</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.bundles.repackaged</groupId>
+			<artifactId>jersey-guava</artifactId>
+			<version>${jersey.guava.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- swagger -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>confluent</id>
+			<url>http://packages.confluent.io/maven/</url>
+		</repository>
+	</repositories>
 	<build>
 		<plugins>
 			<plugin>
@@ -106,6 +172,7 @@
 						<configuration>
 							<sources>
 								<source>${project.basedir}/generated/src/main/java/jooq</source>
+								<source>${project.basedir}/generated/src/main/java/avro</source>
 								<source>${project.basedir}/generated/src/main/java/annotations</source>
 							</sources>
 						</configuration>
@@ -137,7 +204,7 @@
 					<url>jdbc:h2:~/employee</url>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -148,8 +215,8 @@
 					</includes>
 					<excludes>
 						<exclude>**/*IT.*</exclude>
+						<exclude>**/*Runner.*</exclude>
 					</excludes>
-
 				</configuration>
 			</plugin>
 
@@ -172,12 +239,48 @@
 				</executions>
 				<configuration>
 					<includes>
+						<include>**/*Runner.*</include>
 						<include>**/*IT.*</include>
 					</includes>
 				</configuration>
 			</plugin>
 		</plugins>
-
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.avro
+										</groupId>
+										<artifactId>
+											avro-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.8.2,)
+										</versionRange>
+										<goals>
+											<goal>schema</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 	<profiles>
 		<profile>
@@ -229,6 +332,32 @@
 								<version>${h2.version}</version>
 							</dependency>
 						</dependencies>
+					</plugin>
+					<!-- avro-maven-plugin -->
+					<plugin>
+						<groupId>org.apache.avro</groupId>
+						<artifactId>avro-maven-plugin</artifactId>
+						<version>${avro.version}</version>
+						<executions>
+							<execution>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>schema</goal>
+								</goals>
+								<configuration>
+									<imports>
+										<import>${project.basedir}/src/main/resources/avro/FlightPreparedEvent.avsc</import>
+										<import>${project.basedir}/src/main/resources/avro/PrepareFlightCommand.avsc</import>
+									</imports>
+									<sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
+									<outputDirectory>${project.basedir}/generated/src/main/java/avro</outputDirectory>
+									<stringType>String</stringType>
+									<includes>
+										<include>**/*.avsc</include>
+									</includes>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>

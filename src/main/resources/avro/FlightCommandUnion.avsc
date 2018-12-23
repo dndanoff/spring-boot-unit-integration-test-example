@@ -1,0 +1,9 @@
+{
+	"namespace": "com.danoff.dto.avro.command",
+	"type":"record",
+	"name":"FlightCommandUnion",
+	"fields":[
+		{"name":"command","type":["com.danoff.dto.avro.command.PrepareFlightCommand"]}
+
+ 	]
+}

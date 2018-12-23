@@ -1,0 +1,10 @@
+{
+  "namespace": "com.danoff.dto.avro.command",
+  "type": "record",
+  "name": "PrepareFlightCommand",
+  "fields" : [
+    {"name": "id", "type": "long"},
+    {"name": "departureAirport", "type": ["null", "string"],  "default": null},
+    {"name": "arrivalAirport", "type": ["null", "string"],  "default": null}
+  ]
+}

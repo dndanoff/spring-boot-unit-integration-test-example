@@ -1,0 +1,10 @@
+{
+	"namespace": "com.danoff.dto.avro.event",
+	"type":"record",
+	"name":"FlightPreparedEvent",
+	"fields":[
+		{"name": "id", "type": "long"},
+	    {"name": "departureAirport", "type": ["null", "string"],  "default": null},
+	    {"name": "arrivalAirport", "type": ["null", "string"],  "default": null}
+ 	]
+}

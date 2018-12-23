@@ -1,0 +1,9 @@
+{
+	"namespace": "com.danoff.dto.avro.event",
+	"type":"record",
+	"name":"FlightEventUnion",
+	"fields":[
+		{"name":"event","type":["com.danoff.dto.avro.event.FlightPreparedEvent"]}
+
+ 	]
+}

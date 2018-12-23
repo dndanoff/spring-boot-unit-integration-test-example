@@ -1,11 +1,19 @@
-package com.danoff.demo.cucumber;
+package com.danoff.demo.cucumber.stepdefinition;
 
-import com.danoff.demo.BaseIntegrationTest;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+
+import com.danoff.demo.common.BaseIntegrationTest;
 
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+@SqlGroup({
+    @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/insertData.sql"),
+    @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:db/deleteTableData.sql")
+})
 public class SimpleFeature extends BaseIntegrationTest {
 	
 	@When("^the client calls /employees$")
